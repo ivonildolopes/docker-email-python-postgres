@@ -1,0 +1,30 @@
+version: '3'
+volumes:
+    dados:
+services:
+    db:
+     image: postgres:9.6.9
+     volumes:
+        #volume de dados
+        - dados:/var/lib/postgres/data
+        #scripts
+        - ./scripts:/scripts
+        - ./scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
+     ports:
+        - 5432:5432
+    frontend:
+        image: nginx:1.13
+        volumes:
+            - ./web:/usr/share/nginx/html/
+        ports:
+            - 80:80    
+    app:
+        image: python:3.6
+        volumes:
+                #dentro do container python existe uma pasta chamada app
+            - ./app:/app
+            #esse /app que esta sendo referencia é o app do container
+        working_dir: /app
+        command: bash ./app.sh
+        ports: 
+            - 8080:8080            
