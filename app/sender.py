@@ -1,9 +1,28 @@
+import psycopg2
 from bottle import route, run, request
+
+#aqui estou passando algumas configuraçoes
+#informando o nome do banco o usuario e o host=db que é um serviço la no docker-compose
+
+DSN = 'dbname=email_sender user=postgres host=db'
+SQL = 'INSERT INTO emails(assunto, mensagem) VALUES (%s, %s)'
+
+def register_message(assunto, mensagem):
+    conn = psycopg2.connect(DSN)
+    cur = conn.cursor()
+    cur.execute(SQL,(assunto, mensagem))
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    print('mensagem registrada!')
 
 @route('/', method='POST')
 def send():
     assunto = request.forms.get('assunto')
     mensagem = request.forms.get('mensagem')
+    register_message(assunto,mensagem)
+
     return 'Mensagem enfileirada! Assunto: {} Menssagem: {}'.format(
         assunto, mensagem
     )
